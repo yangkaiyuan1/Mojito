@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<!--具体配置内容-->
+<configuration>
+
+    <settings>
+        <!-- 打开懒加载（延迟加载） -->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <!-- 将积极加载改为消极加载（即为按需加载） -->
+        <setting name="aggressiveLazyLoading" value="false"/>
+        <!-- 开启二级缓存:默认是关闭的 -->
+        <setting name="cacheEnabled" value="true"/>
+        <!-- 打印日志 -->
+        <setting name="logImpl" value="LOG4J2"/>
+    </settings>
+
+    <!--配置PageHelper插件-->
+    <plugins>
+        <plugin interceptor="com.github.pagehelper.PageHelper">
+            <!--设置使用mysql的分页方言-->
+            <property name="dialect" value="mysql"></property>
+        </plugin>
+    </plugins>
+
+
+
+
+</configuration>

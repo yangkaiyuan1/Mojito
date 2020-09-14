@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+        xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        ">
+
+    <!--1.配置通配符的扫描器
+         base-package="cn.com.djin.spring.*"  "*"为通配符，匹配所有
+         扫描cn.com.djin.spring此包下面的类或者子包及其子包的类
+    -->
+    <context:component-scan base-package="cn.com.yky.ssm.*"/>
+
+    <!--2.配置读取数据库四大件的db.properties-->
+    <context:property-placeholder location="classpath:db.properties"/>
+
+    <!--3.配置数据源，我们使用spring框架去链接管理-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <!--配置链接数据库的四大件-->
+        <!--设置驱动类的类型-->
+        <property name="driverClass" value="${db.driverClass}"/>
+        <!--设置链接数据库的路径-->
+        <property name="jdbcUrl" value="${db.jdbcUrl}"/>
+        <!--设置用户名-->
+        <property name="user" value="${db.user}"/>
+        <!--设置密码-->
+        <property name="password" value="${db.password}"/>
+        <!--C3P0连接池的其他配置-->
+        <property name="maxPoolSize" value="5"/>
+        <property name="minPoolSize" value="1"/>
+    </bean>
+
+    <!--4.配置SqlSessionFactory的创建且为单例模式，我们使用spring框架去管理-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--依赖数据源-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--管理读取mybatis-config.xml中配置-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!--配置实体封装类的别名,会自动扫描到此包下所有的实体封装类-->
+        <property name="typeAliasesPackage" value="cn.com.yky.ssm.entity"/>
+        <!--配置扫描到resources/mapper下面的所有mapper.xml文件-->
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+    </bean>
+
+    <!--5.配置得到Mapper动态代理对象（用匿名bean）
+          通过此工具类将Mapper动态代理对象实例化并放入到IOC容器中进行管理
+    -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--依赖引入sqlSessionFactory对象-->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <!--配置扫描到mapper接口包下面所有的Mapper文件-->
+        <property name="basePackage" value="cn.com.yky.ssm.mapper"/>
+    </bean>
+
+    <!--6.配置spring管理mybatis事物的组件，使用的spring框架提供的管理mybatis的事物组件-->
+    <!--6.1将事物的功能组件实例化放入到IOC容器中-->
+   <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+     <!-- 依赖引入数据源-->
+     <property name="dataSource" ref="dataSource"/>
+   </bean>
+
+    <!--开启事物注解驱动配置-->
+    <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+
+
+</beans>
